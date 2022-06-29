@@ -1,22 +1,22 @@
 {
   "files": {
-    "main.css": "/react-github-pages/static/css/main.6dea0f05.chunk.css",
-    "main.js": "/react-github-pages/static/js/main.903ce9c9.chunk.js",
-    "main.js.map": "/react-github-pages/static/js/main.903ce9c9.chunk.js.map",
-    "runtime-main.js": "/react-github-pages/static/js/runtime-main.c6c0a30e.js",
-    "runtime-main.js.map": "/react-github-pages/static/js/runtime-main.c6c0a30e.js.map",
-    "static/js/2.5bd9fc06.chunk.js": "/react-github-pages/static/js/2.5bd9fc06.chunk.js",
-    "static/js/2.5bd9fc06.chunk.js.map": "/react-github-pages/static/js/2.5bd9fc06.chunk.js.map",
-    "static/js/3.1118962f.chunk.js": "/react-github-pages/static/js/3.1118962f.chunk.js",
-    "static/js/3.1118962f.chunk.js.map": "/react-github-pages/static/js/3.1118962f.chunk.js.map",
-    "index.html": "/react-github-pages/index.html",
-    "static/css/main.6dea0f05.chunk.css.map": "/react-github-pages/static/css/main.6dea0f05.chunk.css.map",
-    "static/js/2.5bd9fc06.chunk.js.LICENSE.txt": "/react-github-pages/static/js/2.5bd9fc06.chunk.js.LICENSE.txt"
+    "main.css": "/maplestory-virtual-draw/static/css/main.6dea0f05.chunk.css",
+    "main.js": "/maplestory-virtual-draw/static/js/main.0804f0f8.chunk.js",
+    "main.js.map": "/maplestory-virtual-draw/static/js/main.0804f0f8.chunk.js.map",
+    "runtime-main.js": "/maplestory-virtual-draw/static/js/runtime-main.ee507b3e.js",
+    "runtime-main.js.map": "/maplestory-virtual-draw/static/js/runtime-main.ee507b3e.js.map",
+    "static/js/2.c4ee40cf.chunk.js": "/maplestory-virtual-draw/static/js/2.c4ee40cf.chunk.js",
+    "static/js/2.c4ee40cf.chunk.js.map": "/maplestory-virtual-draw/static/js/2.c4ee40cf.chunk.js.map",
+    "static/js/3.8961efe8.chunk.js": "/maplestory-virtual-draw/static/js/3.8961efe8.chunk.js",
+    "static/js/3.8961efe8.chunk.js.map": "/maplestory-virtual-draw/static/js/3.8961efe8.chunk.js.map",
+    "index.html": "/maplestory-virtual-draw/index.html",
+    "static/css/main.6dea0f05.chunk.css.map": "/maplestory-virtual-draw/static/css/main.6dea0f05.chunk.css.map",
+    "static/js/2.c4ee40cf.chunk.js.LICENSE.txt": "/maplestory-virtual-draw/static/js/2.c4ee40cf.chunk.js.LICENSE.txt"
   },
   "entrypoints": [
-    "static/js/runtime-main.c6c0a30e.js",
-    "static/js/2.5bd9fc06.chunk.js",
+    "static/js/runtime-main.ee507b3e.js",
+    "static/js/2.c4ee40cf.chunk.js",
     "static/css/main.6dea0f05.chunk.css",
-    "static/js/main.903ce9c9.chunk.js"
+    "static/js/main.0804f0f8.chunk.js"
   ]
 }
