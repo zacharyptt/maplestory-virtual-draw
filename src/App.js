@@ -1,5 +1,5 @@
 import TextField from '@mui/material/TextField';
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useEffect, useMemo, useRef, useState} from 'react';
 import CssBaseline from '@mui/material/CssBaseline';
 import Button from '@mui/material/Button';
 import Paper from '@mui/material/Paper';
@@ -15,6 +15,10 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Link from '@mui/material/Link';
 import {createTheme, ThemeProvider} from '@mui/material/styles';
+import ReactGA from 'react-ga';
+// ReactGA.initialize('G-68SES6VVEW');
+// console.log(window.location.pathname + window.location.search);
+// ReactGA.pageview(window.location.pathname + window.location.search);
 const darkTheme = createTheme({
     palette: {
         mode: 'dark',
@@ -62,13 +66,27 @@ V寵物裝備魔力卷軸	2.00%
 命運防具魔力卷軸	0.50%
 命運寵物裝備攻擊力卷軸	0.50%
 命運寵物裝備魔力卷軸	0.50%`;
+const dataDestiny = `
++12	4%
++13	6%
++14	31%
++15	30%
++16	14%
++17	7%
++18	5%
++19	2%
++20	1%
+`;
 function App() {
     const [drawData, setDrawData] = useState([]);
     const formatData = (data) => {
-        return data.split('\n').map((value) => {
-            const [name, chance] = value.split('\t');
-            return {name, chance: parseFloat(chance.slice(0, -1))};
-        });
+        return data
+            .trim()
+            .split('\n')
+            .map((value) => {
+                const [name, chance] = value.split('\t');
+                return {name, chance: parseFloat(chance.slice(0, -1))};
+            });
     };
     const draw = () => {
         const random = Math.random();
@@ -96,8 +114,16 @@ function App() {
         _scroll.current.scrollTop = maxScrollTop > 0 ? maxScrollTop : 0;
     }, [resultList]);
     useEffect(() => {
-        setDrawData(formatData(data8614));
+        setDrawData(formatData(dataDestiny));
+        // setDrawData(formatData(data8614));
     }, []);
+    const average = useMemo(() => {
+        if (resultList.length === 0) {
+            return 0;
+        }
+        const sum = resultList.reduce((previousValue, currentValue) => previousValue + parseInt(currentValue), 0);
+        return sum / resultList.length;
+    }, [resultList]);
     return (
         <ThemeProvider theme={darkTheme}>
             <div>
@@ -110,6 +136,26 @@ function App() {
                     >
                         楓之谷機率連結
                     </Link>
+                    <Box sx={{marginTop: 2}}>
+                        <Button
+                            onClick={() => {
+                                setDrawData(formatData(data8614));
+                                setText('');
+                                setResultList([]);
+                            }}
+                        >
+                            模擬抽畫框
+                        </Button>
+                        <Button
+                            onClick={() => {
+                                setDrawData(formatData(dataDestiny));
+                                setText('');
+                                setResultList([]);
+                            }}
+                        >
+                            模擬衝命運武器卷
+                        </Button>
+                    </Box>
                     <Box
                         sx={{
                             display: 'flex',
@@ -148,15 +194,6 @@ function App() {
                                     }}
                                 >
                                     設定
-                                </Button>
-                                <Button
-                                    onClick={() => {
-                                        setDrawData(formatData(data8614));
-                                        setText('');
-                                        setResultList([]);
-                                    }}
-                                >
-                                    設定為畫框資料
                                 </Button>
                             </Box>
                             <TableContainer component={Paper} sx={{marginTop: 2}}>
@@ -207,6 +244,7 @@ function App() {
                                                 })
                                             );
                                         }
+                                        ReactGA.event({category: 'User', action: 'draw'});
                                     }}
                                 >
                                     抽
@@ -214,6 +252,7 @@ function App() {
                             </Box>
                             <Box sx={{flexDirection: 'row'}}>
                                 <Typography>總數：{resultList.length}</Typography>
+                                {!!average && <Typography>平均：{average}</Typography>}
                                 <Button
                                     onClick={() => {
                                         setResultList([]);
@@ -233,7 +272,7 @@ function App() {
                                 }}
                                 ref={_scroll}
                             >
-                                {resultList.map((value, index) => (
+                                {resultList.slice(-100).map((value, index) => (
                                     <Box key={index} sx={{marginBottom: 1}}>
                                         {value}
                                     </Box>
