@@ -27,6 +27,7 @@ import {createTheme, ThemeProvider} from '@mui/material/styles';
 import data8614 from './drawData/data8614';
 import dataDestiny from './drawData/dataDestiny';
 import data8369 from './drawData/data8369';
+import axios from 'axios';
 const darkTheme = createTheme({
     palette: {
         mode: 'dark',
@@ -97,38 +98,40 @@ function App() {
         return sum / resultList.length;
     }, [resultList]);
     const [navList, setNavList] = useState([]);
-    // useEffect(() => {
-    //     const getNowNavList = () => {
-    //         fetch('beanfuncommon/EventAD_Mobile/EventAD.aspx?EventADID=8369')
-    //             .then(function (response) {
-    //                 return response.text();
-    //             })
-    //             .then(function (html) {
-    //                 var parser = new DOMParser();
-    //                 var doc = parser.parseFromString(html, 'text/html');
-    //                 const alist = doc.querySelector('.nav').querySelectorAll('a');
-    //                 const list = [];
-    //                 alist.forEach((a) => {
-    //                     list.push({
-    //                         name: a.textContent.trim(),
-    //                         href: a.href,
-    //                         eventID: a.href.split(
-    //                             'https://tw-event.beanfun.com/MapleStory/eventad/EventAD.aspx?EventADID='
-    //                         )[1],
-    //                     });
-    //                 });
-    //                 setNavList(list);
-    //             });
-    //     };
-    //     getNowNavList();
-    // }, []);
+    const fetchHtml = (url) =>
+        axios.get(
+            'https://script.google.com/macros/s/AKfycbxbHMPu9MfO5w7o0LLKx1hGUFgjuPa7ibr6EH2A-vQMg9s1AGG7d2x9DTvki_zXqAaI/exec',
+            {
+                params: {
+                    url: url,
+                },
+            }
+        );
+    useEffect(() => {
+        const getNowNavList = () => {
+            fetchHtml('https://tw.beanfun.com/beanfuncommon/EventAD_Mobile/EventAD.aspx?EventADID=8369').then(
+                ({data: html}) => {
+                    var parser = new DOMParser();
+                    var doc = parser.parseFromString(html, 'text/html');
+                    const alist = doc.querySelector('.nav').querySelectorAll('a');
+                    const list = [];
+                    alist.forEach((a) => {
+                        list.push({
+                            name: a.textContent.trim(),
+                            href: a.href,
+                        });
+                    });
+                    setNavList(list);
+                }
+            );
+        };
+        getNowNavList();
+    }, []);
 
-    const parseAndSetData = (eventID) => {
-        fetch(`beanfuncommon/EventAD_Mobile/EventAD.aspx?EventADID=${eventID}`)
-            .then(function (response) {
-                return response.text();
-            })
-            .then(function (html) {
+    const parseAndSetData = (href) => {
+        setFetchLoading(true);
+        fetchHtml(href)
+            .then(({data: html}) => {
                 var parser = new DOMParser();
                 var doc = parser.parseFromString(html, 'text/html');
                 const tds = doc.querySelector('table').querySelectorAll('tr');
@@ -146,12 +149,16 @@ function App() {
                 list.shift();
                 setDrawData(list);
                 cleanResult();
+            })
+            .catch(() => {})
+            .then(() => {
+                setFetchLoading(false);
             });
     };
     const [drawerOpen, setDrawerOpen] = useState(false);
     const openDrawer = () => setDrawerOpen(true);
     const closeDrawer = () => setDrawerOpen(false);
-
+    const [fetchLoading, setFetchLoading] = useState(false);
     return (
         <ThemeProvider theme={darkTheme}>
             <div>
@@ -206,20 +213,22 @@ function App() {
                                 </RadioGroup>
                             </FormControl>
                         </Box>
-                        {/* <Typography sx={{my: 2}}>直接抓取官網機率(實驗性功能，有些還無法正常使用)</Typography>
+                        <Typography sx={{my: 2}}>直接抓取官網機率(實驗性功能，有些還無法正常使用)</Typography>
+                        {fetchLoading && <Typography>抓取中...</Typography>}
                         <Grid container>
-                            {navList.map(({name, eventID}) => (
+                            {navList.map(({name, href}) => (
                                 <Grid key={name} item xs={4}>
                                     <Button
+                                        disabled={fetchLoading}
                                         onClick={() => {
-                                            parseAndSetData(eventID);
+                                            parseAndSetData(href);
                                         }}
                                     >
                                         {name}
                                     </Button>
                                 </Grid>
                             ))}
-                        </Grid> */}
+                        </Grid>
                     </Box>
                 </Drawer>
                 <Container sx={{marginTop: 5}}>
