@@ -3,9 +3,11 @@
   "homepage": "https://zacharyptt.github.io/maplestory-virtual-draw",
   "version": "0.1.0",
   "private": true,
+  "proxy": "https://tw.beanfun.com/",
   "dependencies": {
     "@emotion/react": "^11.9.3",
     "@emotion/styled": "^11.9.3",
+    "@mui/icons-material": "^5.8.4",
     "@mui/material": "^5.8.6",
     "@testing-library/jest-dom": "^5.11.4",
     "@testing-library/react": "^11.1.0",

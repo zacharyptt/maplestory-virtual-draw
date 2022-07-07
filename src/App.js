@@ -19,6 +19,10 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import FormLabel from '@mui/material/FormLabel';
 import Radio from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
+import Grid from '@mui/material/Grid';
+import AppBar from '@mui/material/AppBar';
+import Drawer from '@mui/material/Drawer';
+import Toolbar from '@mui/material/Toolbar';
 import {createTheme, ThemeProvider} from '@mui/material/styles';
 import data8614 from './drawData/data8614';
 import dataDestiny from './drawData/dataDestiny';
@@ -49,7 +53,7 @@ function App() {
             Math.round(drawData.reduce((previousValue, currentValue) => previousValue + currentValue.chance, 0) * 100) /
             100,
         [drawData]
-    ); //總共
+    ); //總機率
     const draw = () => {
         const random = Math.random();
         let count = 0;
@@ -69,18 +73,20 @@ function App() {
     const _scroll = useRef();
 
     useEffect(() => {
-        // _bottom.current.scrollIntoView({behavior: 'smooth'});
         const scrollHeight = _scroll.current.scrollHeight;
         const height = _scroll.current.clientHeight;
         const maxScrollTop = scrollHeight - height;
         _scroll.current.scrollTop = maxScrollTop > 0 ? maxScrollTop : 0;
     }, [resultList]);
     const [nowDataKey, setNowDataKey] = useState('data8369');
+    const cleanResult = () => {
+        setText('');
+        setResultList([]);
+    };
     useEffect(() => {
         if (nowDataKey !== '') {
             setDrawData(formatData(data[nowDataKey]));
-            setText('');
-            setResultList([]);
+            cleanResult();
         }
     }, [nowDataKey]);
     const average = useMemo(() => {
@@ -90,41 +96,133 @@ function App() {
         const sum = resultList.reduce((previousValue, currentValue) => previousValue + parseInt(currentValue), 0);
         return sum / resultList.length;
     }, [resultList]);
+    const [navList, setNavList] = useState([]);
+    useEffect(() => {
+        const getNowNavList = () => {
+            fetch('beanfuncommon/EventAD_Mobile/EventAD.aspx?EventADID=8369')
+                .then(function (response) {
+                    return response.text();
+                })
+                .then(function (html) {
+                    var parser = new DOMParser();
+                    var doc = parser.parseFromString(html, 'text/html');
+                    const alist = doc.querySelector('.nav').querySelectorAll('a');
+                    const list = [];
+                    alist.forEach((a) => {
+                        list.push({
+                            name: a.textContent.trim(),
+                            href: a.href,
+                            eventID: a.href.split(
+                                'https://tw-event.beanfun.com/MapleStory/eventad/EventAD.aspx?EventADID='
+                            )[1],
+                        });
+                    });
+                    setNavList(list);
+                });
+        };
+        getNowNavList();
+    }, []);
+
+    const parseAndSetData = (eventID) => {
+        fetch(`beanfuncommon/EventAD_Mobile/EventAD.aspx?EventADID=${eventID}`)
+            .then(function (response) {
+                return response.text();
+            })
+            .then(function (html) {
+                var parser = new DOMParser();
+                var doc = parser.parseFromString(html, 'text/html');
+                const tds = doc.querySelector('table').querySelectorAll('tr');
+                const list = [];
+                tds.forEach((tr, index) => {
+                    const tds = tr.querySelectorAll('td:not([rowspan])');
+                    const chanceText = tds[1].textContent.trim();
+                    const item = {
+                        id: index,
+                        name: tds[0].textContent.trim(),
+                        chance: parseFloat(chanceText.slice(0, -1)),
+                    };
+                    list.push(item);
+                });
+                list.shift();
+                setDrawData(list);
+                cleanResult();
+            });
+    };
+    const [drawerOpen, setDrawerOpen] = useState(false);
+    const openDrawer = () => setDrawerOpen(true);
+    const closeDrawer = () => setDrawerOpen(false);
+
     return (
         <ThemeProvider theme={darkTheme}>
             <div>
                 <CssBaseline />
-                <Container sx={{marginTop: 10}}>
-                    <Link
-                        target="_blank"
-                        rel="noopener"
-                        href="https://tw.beanfun.com/beanfuncommon/EventAD_Mobile/EventAD.aspx?EventADID=5325"
-                    >
-                        楓之谷機率連結
-                    </Link>
-
-                    <Box sx={{marginTop: 2}}>
-                        <FormControl>
-                            <FormLabel>選擇資料</FormLabel>
-                            <RadioGroup
-                                value={nowDataKey}
-                                onChange={(event) => {
-                                    setNowDataKey(event.target.value);
-                                }}
-                            >
-                                <FormControlLabel
-                                    value="data8369"
-                                    control={<Radio />}
-                                    label={'模擬抽黃金蘋果（大獎輪迴碑石）'}
-                                />
-                                <FormControlLabel value="data8614" control={<Radio />} label="模擬抽畫框" />
-                                <FormControlLabel value="dataDestiny" control={<Radio />} label="模擬衝命運武器卷" />
-                                {nowDataKey === '' && (
-                                    <FormControlLabel value="" control={<Radio />} label="自訂資料" />
-                                )}
-                            </RadioGroup>
-                        </FormControl>
+                <AppBar position="static">
+                    <Toolbar>
+                        <Typography variant="h6" component="div" sx={{flexGrow: 1}}>
+                            楓之谷模擬抽獎
+                        </Typography>
+                        <Button color="inherit" onClick={openDrawer}>
+                            資料設定
+                        </Button>
+                    </Toolbar>
+                </AppBar>
+                <Drawer
+                    BackdropProps={{style: {backgroundColor: 'transparent'}}}
+                    anchor="right"
+                    open={drawerOpen}
+                    onClose={closeDrawer}
+                >
+                    <Box sx={{width: 300, p: 2}}>
+                        <Link
+                            target="_blank"
+                            rel="noopener"
+                            href="https://tw.beanfun.com/beanfuncommon/EventAD_Mobile/EventAD.aspx?EventADID=5325"
+                        >
+                            楓之谷機率連結
+                        </Link>
+                        <Box sx={{marginTop: 2}}>
+                            <FormControl>
+                                <FormLabel>選擇資料</FormLabel>
+                                <RadioGroup
+                                    value={nowDataKey}
+                                    onChange={(event) => {
+                                        setNowDataKey(event.target.value);
+                                    }}
+                                >
+                                    <FormControlLabel
+                                        value="data8369"
+                                        control={<Radio />}
+                                        label={'模擬抽黃金蘋果（大獎輪迴碑石）'}
+                                    />
+                                    <FormControlLabel value="data8614" control={<Radio />} label="模擬抽畫框" />
+                                    <FormControlLabel
+                                        value="dataDestiny"
+                                        control={<Radio />}
+                                        label="模擬衝命運武器卷"
+                                    />
+                                    {nowDataKey === '' && (
+                                        <FormControlLabel value="" control={<Radio />} label="自訂資料" />
+                                    )}
+                                </RadioGroup>
+                            </FormControl>
+                        </Box>
+                        <Typography sx={{my: 2}}>直接抓取官網機率(實驗性功能，有些還無法正常使用)</Typography>
+                        <Grid container>
+                            {navList.map(({name, eventID}) => (
+                                <Grid key={name} item xs={4}>
+                                    <Button
+                                        onClick={() => {
+                                            parseAndSetData(eventID);
+                                        }}
+                                    >
+                                        {name}
+                                    </Button>
+                                </Grid>
+                            ))}
+                        </Grid>
                     </Box>
+                </Drawer>
+                <Container sx={{marginTop: 5}}>
                     <Box
                         sx={{
                             display: 'flex',
@@ -154,8 +252,7 @@ function App() {
                                     onClick={() => {
                                         if (text !== '') {
                                             setDrawData(formatData(text));
-                                            setText('');
-                                            setResultList([]);
+                                            cleanResult();
                                             setNowDataKey('');
                                         }
                                     }}
@@ -227,7 +324,7 @@ function App() {
                                 {!!average && <Typography>平均：{Math.round(average * 100) / 100}</Typography>}
                                 <Button
                                     onClick={() => {
-                                        setResultList([]);
+                                        cleanResult();
                                         setDrawData((state) => state.map(({count, ...other}) => other));
                                     }}
                                 >
