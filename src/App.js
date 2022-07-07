@@ -97,31 +97,31 @@ function App() {
         return sum / resultList.length;
     }, [resultList]);
     const [navList, setNavList] = useState([]);
-    useEffect(() => {
-        const getNowNavList = () => {
-            fetch('beanfuncommon/EventAD_Mobile/EventAD.aspx?EventADID=8369')
-                .then(function (response) {
-                    return response.text();
-                })
-                .then(function (html) {
-                    var parser = new DOMParser();
-                    var doc = parser.parseFromString(html, 'text/html');
-                    const alist = doc.querySelector('.nav').querySelectorAll('a');
-                    const list = [];
-                    alist.forEach((a) => {
-                        list.push({
-                            name: a.textContent.trim(),
-                            href: a.href,
-                            eventID: a.href.split(
-                                'https://tw-event.beanfun.com/MapleStory/eventad/EventAD.aspx?EventADID='
-                            )[1],
-                        });
-                    });
-                    setNavList(list);
-                });
-        };
-        getNowNavList();
-    }, []);
+    // useEffect(() => {
+    //     const getNowNavList = () => {
+    //         fetch('beanfuncommon/EventAD_Mobile/EventAD.aspx?EventADID=8369')
+    //             .then(function (response) {
+    //                 return response.text();
+    //             })
+    //             .then(function (html) {
+    //                 var parser = new DOMParser();
+    //                 var doc = parser.parseFromString(html, 'text/html');
+    //                 const alist = doc.querySelector('.nav').querySelectorAll('a');
+    //                 const list = [];
+    //                 alist.forEach((a) => {
+    //                     list.push({
+    //                         name: a.textContent.trim(),
+    //                         href: a.href,
+    //                         eventID: a.href.split(
+    //                             'https://tw-event.beanfun.com/MapleStory/eventad/EventAD.aspx?EventADID='
+    //                         )[1],
+    //                     });
+    //                 });
+    //                 setNavList(list);
+    //             });
+    //     };
+    //     getNowNavList();
+    // }, []);
 
     const parseAndSetData = (eventID) => {
         fetch(`beanfuncommon/EventAD_Mobile/EventAD.aspx?EventADID=${eventID}`)
@@ -206,7 +206,7 @@ function App() {
                                 </RadioGroup>
                             </FormControl>
                         </Box>
-                        <Typography sx={{my: 2}}>直接抓取官網機率(實驗性功能，有些還無法正常使用)</Typography>
+                        {/* <Typography sx={{my: 2}}>直接抓取官網機率(實驗性功能，有些還無法正常使用)</Typography>
                         <Grid container>
                             {navList.map(({name, eventID}) => (
                                 <Grid key={name} item xs={4}>
@@ -219,7 +219,7 @@ function App() {
                                     </Button>
                                 </Grid>
                             ))}
-                        </Grid>
+                        </Grid> */}
                     </Box>
                 </Drawer>
                 <Container sx={{marginTop: 5}}>
