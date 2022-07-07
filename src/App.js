@@ -14,8 +14,12 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Link from '@mui/material/Link';
+import FormControl from '@mui/material/FormControl';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import FormLabel from '@mui/material/FormLabel';
+import Radio from '@mui/material/Radio';
+import RadioGroup from '@mui/material/RadioGroup';
 import {createTheme, ThemeProvider} from '@mui/material/styles';
-import ReactGA from 'react-ga';
 import data8614 from './drawData/data8614';
 import dataDestiny from './drawData/dataDestiny';
 import data8369 from './drawData/data8369';
@@ -24,7 +28,11 @@ const darkTheme = createTheme({
         mode: 'dark',
     },
 });
-
+const data = {
+    data8369,
+    data8614,
+    dataDestiny,
+};
 function App() {
     const [drawData, setDrawData] = useState([]);
     const formatData = (data) => {
@@ -67,11 +75,14 @@ function App() {
         const maxScrollTop = scrollHeight - height;
         _scroll.current.scrollTop = maxScrollTop > 0 ? maxScrollTop : 0;
     }, [resultList]);
+    const [nowDataKey, setNowDataKey] = useState('data8369');
     useEffect(() => {
-        // setDrawData(formatData(dataDestiny));
-        // setDrawData(formatData(data8614));
-        setDrawData(formatData(data8369));
-    }, []);
+        if (nowDataKey !== '') {
+            setDrawData(formatData(data[nowDataKey]));
+            setText('');
+            setResultList([]);
+        }
+    }, [nowDataKey]);
     const average = useMemo(() => {
         if (resultList.length === 0) {
             return 0;
@@ -91,34 +102,28 @@ function App() {
                     >
                         楓之谷機率連結
                     </Link>
+
                     <Box sx={{marginTop: 2}}>
-                        <Button
-                            onClick={() => {
-                                setDrawData(formatData(data8614));
-                                setText('');
-                                setResultList([]);
-                            }}
-                        >
-                            模擬抽畫框
-                        </Button>
-                        <Button
-                            onClick={() => {
-                                setDrawData(formatData(dataDestiny));
-                                setText('');
-                                setResultList([]);
-                            }}
-                        >
-                            模擬衝命運武器卷
-                        </Button>
-                        <Button
-                            onClick={() => {
-                                setDrawData(formatData(data8369));
-                                setText('');
-                                setResultList([]);
-                            }}
-                        >
-                            模擬抽黃金蘋果（大獎輪迴碑石）
-                        </Button>
+                        <FormControl>
+                            <FormLabel>選擇資料</FormLabel>
+                            <RadioGroup
+                                value={nowDataKey}
+                                onChange={(event) => {
+                                    setNowDataKey(event.target.value);
+                                }}
+                            >
+                                <FormControlLabel
+                                    value="data8369"
+                                    control={<Radio />}
+                                    label={'模擬抽黃金蘋果（大獎輪迴碑石）'}
+                                />
+                                <FormControlLabel value="data8614" control={<Radio />} label="模擬抽畫框" />
+                                <FormControlLabel value="dataDestiny" control={<Radio />} label="模擬衝命運武器卷" />
+                                {nowDataKey === '' && (
+                                    <FormControlLabel value="" control={<Radio />} label="自訂資料" />
+                                )}
+                            </RadioGroup>
+                        </FormControl>
                     </Box>
                     <Box
                         sx={{
@@ -151,14 +156,15 @@ function App() {
                                             setDrawData(formatData(text));
                                             setText('');
                                             setResultList([]);
+                                            setNowDataKey('');
                                         }
                                     }}
                                 >
                                     設定
                                 </Button>
                             </Box>
-                            總機率：{pSum}%
-                            <TableContainer component={Paper} sx={{marginTop: 2}}>
+                            <Typography sx={{my: 2}}>總機率：{pSum}%</Typography>
+                            <TableContainer component={Paper}>
                                 <Table>
                                     <TableHead>
                                         <TableRow>
@@ -199,6 +205,11 @@ function App() {
                                         }
                                         for (let i = 0; i < nums; i++) {
                                             const resultIndex = draw();
+                                            if (resultIndex === undefined) {
+                                                //機率未滿100% 沒抽到東西時
+                                                setResultList((value) => [...value, '沒抽到']);
+                                                continue;
+                                            }
                                             setResultList((value) => [...value, drawData[resultIndex].name]);
                                             setDrawData(
                                                 produce((draft) => {
@@ -206,15 +217,14 @@ function App() {
                                                 })
                                             );
                                         }
-                                        ReactGA.event({category: 'User', action: 'draw'});
                                     }}
                                 >
                                     抽
                                 </Button>
                             </Box>
-                            <Box sx={{flexDirection: 'row'}}>
-                                <Typography>總數：{resultList.length}</Typography>
-                                {!!average && <Typography>平均：{average}</Typography>}
+                            <Box sx={{display: 'flex', flexDirection: 'row', alignItems: 'center'}}>
+                                <Typography sx={{my: 2, mr: 1}}>總數：{resultList.length}</Typography>
+                                {!!average && <Typography>平均：{Math.round(average * 100) / 100}</Typography>}
                                 <Button
                                     onClick={() => {
                                         setResultList([]);
@@ -228,7 +238,10 @@ function App() {
                                 sx={{
                                     display: 'flex',
                                     flexDirection: 'column',
-                                    height: 500,
+                                    height: {
+                                        xs: 150,
+                                        sm: 600,
+                                    },
                                     overflow: 'auto',
                                     px: 5,
                                 }}
