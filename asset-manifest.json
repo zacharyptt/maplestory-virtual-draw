@@ -1,15 +1,15 @@
 {
   "files": {
     "main.css": "/maplestory-virtual-draw/static/css/main.e6c13ad2.css",
-    "main.js": "/maplestory-virtual-draw/static/js/main.0576728a.js",
+    "main.js": "/maplestory-virtual-draw/static/js/main.f975f832.js",
     "static/js/787.18196d4d.chunk.js": "/maplestory-virtual-draw/static/js/787.18196d4d.chunk.js",
     "index.html": "/maplestory-virtual-draw/index.html",
     "main.e6c13ad2.css.map": "/maplestory-virtual-draw/static/css/main.e6c13ad2.css.map",
-    "main.0576728a.js.map": "/maplestory-virtual-draw/static/js/main.0576728a.js.map",
+    "main.f975f832.js.map": "/maplestory-virtual-draw/static/js/main.f975f832.js.map",
     "787.18196d4d.chunk.js.map": "/maplestory-virtual-draw/static/js/787.18196d4d.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.e6c13ad2.css",
-    "static/js/main.0576728a.js"
+    "static/js/main.f975f832.js"
   ]
 }
