@@ -10,6 +10,7 @@ const useStore = create(
             navList: [],
             resultList: [],
             text: '',
+            drawerOpen: false,
             cleanResult: () =>
                 set((state) => ({
                     text: '',
