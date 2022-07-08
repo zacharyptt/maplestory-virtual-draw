@@ -1,33 +1,32 @@
-import TextField from '@mui/material/TextField';
-import React, {useEffect, useMemo, useRef, useState} from 'react';
-import CssBaseline from '@mui/material/CssBaseline';
-import Button from '@mui/material/Button';
-import Paper from '@mui/material/Paper';
+import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
 import Container from '@mui/material/Container';
-import Typography from '@mui/material/Typography';
-import produce from 'immer';
+import CssBaseline from '@mui/material/CssBaseline';
+import Drawer from '@mui/material/Drawer';
+import FormControl from '@mui/material/FormControl';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import FormLabel from '@mui/material/FormLabel';
+import Link from '@mui/material/Link';
+import Paper from '@mui/material/Paper';
+import Radio from '@mui/material/Radio';
+import RadioGroup from '@mui/material/RadioGroup';
+import {createTheme, ThemeProvider} from '@mui/material/styles';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
-import Link from '@mui/material/Link';
-import FormControl from '@mui/material/FormControl';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import FormLabel from '@mui/material/FormLabel';
-import Radio from '@mui/material/Radio';
-import RadioGroup from '@mui/material/RadioGroup';
-import Grid from '@mui/material/Grid';
-import AppBar from '@mui/material/AppBar';
-import Drawer from '@mui/material/Drawer';
+import TextField from '@mui/material/TextField';
 import Toolbar from '@mui/material/Toolbar';
-import {createTheme, ThemeProvider} from '@mui/material/styles';
+import Typography from '@mui/material/Typography';
+import {useEffect, useMemo, useRef, useState} from 'react';
+import data8369 from './drawData/data8369';
 import data8614 from './drawData/data8614';
 import dataDestiny from './drawData/dataDestiny';
-import data8369 from './drawData/data8369';
-import axios from 'axios';
+import useStore from './zustand/useStore';
+import GrabArea from './GrabArea';
 const darkTheme = createTheme({
     palette: {
         mode: 'dark',
@@ -38,8 +37,23 @@ const data = {
     data8614,
     dataDestiny,
 };
+
+const useZState = (key) => {
+    const drawNums = useStore((state) => state[key]);
+    const setDrawNums = (value) => {
+        useStore.setState({
+            [key]: value,
+        });
+    };
+    return [drawNums, setDrawNums];
+};
 function App() {
-    const [drawData, setDrawData] = useState([]);
+    const [drawNums, setDrawNums] = useZState('drawNums');
+    const [nowDataKey, setNowDataKey] = useZState('nowDataKey');
+    const [drawData, setDrawData] = useZState('drawData');
+    const [text, setText] = useZState('text');
+    const cleanResult = useStore((state) => state.cleanResult);
+    const resultList = useStore((state) => state.resultList);
     const formatData = (data) => {
         return data
             .trim()
@@ -55,21 +69,6 @@ function App() {
             100,
         [drawData]
     ); //總機率
-    const draw = () => {
-        const random = Math.random();
-        let count = 0;
-        for (let i = 0; i < drawData.length; i++) {
-            const thisData = drawData[i];
-            if (random >= count && random <= count + thisData.chance / 100) {
-                return i;
-            } else {
-                count = count + thisData.chance / 100;
-            }
-        }
-    };
-    const [resultList, setResultList] = useState([]);
-    const [nums, setNums] = useState(1);
-    const [text, setText] = useState('');
     const _bottom = useRef();
     const _scroll = useRef();
 
@@ -79,16 +78,13 @@ function App() {
         const maxScrollTop = scrollHeight - height;
         _scroll.current.scrollTop = maxScrollTop > 0 ? maxScrollTop : 0;
     }, [resultList]);
-    const [nowDataKey, setNowDataKey] = useState('data8369');
-    const cleanResult = () => {
-        setText('');
-        setResultList([]);
-    };
+    const first = useRef(true);
     useEffect(() => {
-        if (nowDataKey !== '') {
+        if (first.current === false || drawData.length === 0) {
             setDrawData(formatData(data[nowDataKey]));
-            cleanResult();
         }
+        first.current = false;
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [nowDataKey]);
     const average = useMemo(() => {
         if (resultList.length === 0) {
@@ -97,68 +93,10 @@ function App() {
         const sum = resultList.reduce((previousValue, currentValue) => previousValue + parseInt(currentValue), 0);
         return sum / resultList.length;
     }, [resultList]);
-    const [navList, setNavList] = useState([]);
-    const fetchHtml = (url) =>
-        axios.get(
-            'https://script.google.com/macros/s/AKfycbxbHMPu9MfO5w7o0LLKx1hGUFgjuPa7ibr6EH2A-vQMg9s1AGG7d2x9DTvki_zXqAaI/exec',
-            {
-                params: {
-                    url: url,
-                },
-            }
-        );
-    useEffect(() => {
-        const getNowNavList = () => {
-            fetchHtml('https://tw.beanfun.com/beanfuncommon/EventAD_Mobile/EventAD.aspx?EventADID=8369').then(
-                ({data: html}) => {
-                    var parser = new DOMParser();
-                    var doc = parser.parseFromString(html, 'text/html');
-                    const alist = doc.querySelector('.nav').querySelectorAll('a');
-                    const list = [];
-                    alist.forEach((a) => {
-                        list.push({
-                            name: a.textContent.trim(),
-                            href: a.href,
-                        });
-                    });
-                    setNavList(list);
-                }
-            );
-        };
-        getNowNavList();
-    }, []);
-
-    const parseAndSetData = (href) => {
-        setFetchLoading(true);
-        fetchHtml(href)
-            .then(({data: html}) => {
-                var parser = new DOMParser();
-                var doc = parser.parseFromString(html, 'text/html');
-                const tds = doc.querySelector('table').querySelectorAll('tr');
-                const list = [];
-                tds.forEach((tr, index) => {
-                    const tds = tr.querySelectorAll('td:not([rowspan])');
-                    const chanceText = tds[1].textContent.trim();
-                    const item = {
-                        id: index,
-                        name: tds[0].textContent.trim(),
-                        chance: parseFloat(chanceText.slice(0, -1)),
-                    };
-                    list.push(item);
-                });
-                list.shift();
-                setDrawData(list);
-                cleanResult();
-            })
-            .catch(() => {})
-            .then(() => {
-                setFetchLoading(false);
-            });
-    };
-    const [drawerOpen, setDrawerOpen] = useState(false);
+    const [drawerOpen, setDrawerOpen] = useZState('drawerOpen');
     const openDrawer = () => setDrawerOpen(true);
     const closeDrawer = () => setDrawerOpen(false);
-    const [fetchLoading, setFetchLoading] = useState(false);
+
     return (
         <ThemeProvider theme={darkTheme}>
             <div>
@@ -179,7 +117,7 @@ function App() {
                     open={drawerOpen}
                     onClose={closeDrawer}
                 >
-                    <Box sx={{width: 300, p: 2}}>
+                    <Box sx={{width: 400, p: 2}}>
                         <Link
                             target="_blank"
                             rel="noopener"
@@ -193,6 +131,7 @@ function App() {
                                 <RadioGroup
                                     value={nowDataKey}
                                     onChange={(event) => {
+                                        cleanResult();
                                         setNowDataKey(event.target.value);
                                     }}
                                 >
@@ -213,22 +152,7 @@ function App() {
                                 </RadioGroup>
                             </FormControl>
                         </Box>
-                        <Typography sx={{my: 2}}>直接抓取官網機率(實驗性功能，有些還無法正常使用)</Typography>
-                        {fetchLoading && <Typography>抓取中...</Typography>}
-                        <Grid container>
-                            {navList.map(({name, href}) => (
-                                <Grid key={name} item xs={4}>
-                                    <Button
-                                        disabled={fetchLoading}
-                                        onClick={() => {
-                                            parseAndSetData(href);
-                                        }}
-                                    >
-                                        {name}
-                                    </Button>
-                                </Grid>
-                            ))}
-                        </Grid>
+                        <GrabArea />
                     </Box>
                 </Drawer>
                 <Container sx={{marginTop: 5}}>
@@ -262,7 +186,6 @@ function App() {
                                         if (text !== '') {
                                             setDrawData(formatData(text));
                                             cleanResult();
-                                            setNowDataKey('');
                                         }
                                     }}
                                 >
@@ -296,33 +219,17 @@ function App() {
                             <Box sx={{display: 'flex', alignItems: 'center', marginTop: 1}}>
                                 <TextField
                                     label="抽取次數"
-                                    value={nums}
+                                    value={drawNums}
                                     onChange={(event) => {
                                         const value = event.target.value;
                                         if (/^[1-9]\d*$/.test(value) || value === '') {
-                                            setNums(value);
+                                            setDrawNums(value);
                                         }
                                     }}
                                 />
                                 <Button
                                     onClick={() => {
-                                        if (drawData.length === 0) {
-                                            return;
-                                        }
-                                        for (let i = 0; i < nums; i++) {
-                                            const resultIndex = draw();
-                                            if (resultIndex === undefined) {
-                                                //機率未滿100% 沒抽到東西時
-                                                setResultList((value) => [...value, '沒抽到']);
-                                                continue;
-                                            }
-                                            setResultList((value) => [...value, drawData[resultIndex].name]);
-                                            setDrawData(
-                                                produce((draft) => {
-                                                    draft[resultIndex].count = (draft[resultIndex].count || 0) + 1;
-                                                })
-                                            );
-                                        }
+                                        useStore.getState().draw();
                                     }}
                                 >
                                     抽
@@ -331,14 +238,7 @@ function App() {
                             <Box sx={{display: 'flex', flexDirection: 'row', alignItems: 'center'}}>
                                 <Typography sx={{my: 2, mr: 1}}>總數：{resultList.length}</Typography>
                                 {!!average && <Typography>平均：{Math.round(average * 100) / 100}</Typography>}
-                                <Button
-                                    onClick={() => {
-                                        cleanResult();
-                                        setDrawData((state) => state.map(({count, ...other}) => other));
-                                    }}
-                                >
-                                    清除
-                                </Button>
+                                <Button onClick={cleanResult}>清除</Button>
                             </Box>
                             <Paper
                                 sx={{
