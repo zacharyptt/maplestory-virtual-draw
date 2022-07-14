@@ -1,3 +1,5 @@
+網址: https://zacharyptt.github.io/maplestory-virtual-draw
+
 此程式可用來模擬遊戲內抽獎 輸入資料的方式可從官網上複製
 
 比如說 要模擬抽皇家美髮 則貼上從官網複製的資料
