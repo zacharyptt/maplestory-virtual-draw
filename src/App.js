@@ -117,7 +117,7 @@ function App() {
                     open={drawerOpen}
                     onClose={closeDrawer}
                 >
-                    <Box sx={{width: 400, p: 2}}>
+                    <Box sx={{width: 350, p: 2}}>
                         <Link
                             target="_blank"
                             rel="noopener"
