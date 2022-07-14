@@ -3,7 +3,6 @@ import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Container from '@mui/material/Container';
 import CssBaseline from '@mui/material/CssBaseline';
-import Drawer from '@mui/material/Drawer';
 import FormControl from '@mui/material/FormControl';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import FormLabel from '@mui/material/FormLabel';
@@ -21,7 +20,8 @@ import TableRow from '@mui/material/TableRow';
 import TextField from '@mui/material/TextField';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
-import {useEffect, useMemo, useRef, useState} from 'react';
+import SwipeableDrawer from '@mui/material/SwipeableDrawer';
+import {useEffect, useMemo, useRef} from 'react';
 import data8369 from './drawData/data8369';
 import data8614 from './drawData/data8614';
 import dataDestiny from './drawData/dataDestiny';
@@ -111,7 +111,7 @@ function App() {
                         </Button>
                     </Toolbar>
                 </AppBar>
-                <Drawer
+                <SwipeableDrawer
                     BackdropProps={{style: {backgroundColor: 'transparent'}}}
                     anchor="right"
                     open={drawerOpen}
@@ -154,7 +154,7 @@ function App() {
                         </Box>
                         <GrabArea />
                     </Box>
-                </Drawer>
+                </SwipeableDrawer>
                 <Container sx={{marginTop: 5}}>
                     <Box
                         sx={{
