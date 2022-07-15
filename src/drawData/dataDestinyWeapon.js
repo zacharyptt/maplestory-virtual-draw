@@ -1,4 +1,4 @@
-const dataDestiny = `
+const dataDestinyWeapon = `
 +12	4%
 +13	6%
 +14	31%
@@ -9,4 +9,4 @@ const dataDestiny = `
 +19	2%
 +20	1%
 `;
-export default dataDestiny;
+export default dataDestinyWeapon;

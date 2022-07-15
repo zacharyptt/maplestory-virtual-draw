@@ -4,6 +4,9 @@ import {immer} from 'zustand/middleware/immer';
 const useStore = create(
     persist(
         immer((set, get) => ({
+            total: 0,
+            sum: 0,
+            average: 0,
             nowDataKey: 'data8369',
             drawNums: 1,
             drawData: [],
@@ -13,6 +16,9 @@ const useStore = create(
             drawerOpen: false,
             cleanResult: () =>
                 set((state) => ({
+                    average: 0,
+                    total: 0,
+                    sum: 0,
                     text: '',
                     resultList: [],
                     drawData: state.drawData.map(({count, ...other}) => other),
@@ -27,7 +33,7 @@ const useStore = create(
                 for (let i = 0; i < get().drawData.length; i++) {
                     const thisData = get().drawData[i];
                     if (random >= count && random <= count + thisData.chance / 100) {
-                        return i;
+                        return {index: i, ...thisData};
                     } else {
                         count = count + thisData.chance / 100;
                     }
@@ -38,19 +44,26 @@ const useStore = create(
                     return;
                 }
                 for (let i = 0; i < get().drawNums; i++) {
-                    const resultIndex = get().getRandomIndexFromDrawData();
-                    if (resultIndex === undefined) {
+                    const result = get().getRandomIndexFromDrawData();
+                    if (result === undefined) {
                         //機率未滿100% 沒抽到東西時
                         set((state) => ({
                             resultList: [...state.resultList, '沒抽到'],
                         }));
                         continue;
                     }
-                    set((state) => ({
-                        resultList: [...state.resultList, get().drawData[resultIndex].name],
-                    }));
                     set((draft) => {
-                        draft.drawData[resultIndex].count = (draft.drawData[resultIndex].count || 0) + 1;
+                        draft.total = draft.total + 1;
+                        draft.resultList.push(result.name);
+                        if (draft.resultList.length > 0) {
+                            draft.sum = draft.sum + parseInt(result.name);
+                            draft.average = draft.sum / draft.total;
+                        }
+                        draft.drawData[result.index].count = (draft.drawData[result.index].count || 0) + 1;
+                        if (draft.resultList.length > 100) {
+                            //為了程式效能只放100筆
+                            draft.resultList.shift();
+                        }
                     });
                 }
             },

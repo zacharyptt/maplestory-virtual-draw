@@ -24,7 +24,8 @@ import SwipeableDrawer from '@mui/material/SwipeableDrawer';
 import {useEffect, useMemo, useRef} from 'react';
 import data8369 from './drawData/data8369';
 import data8614 from './drawData/data8614';
-import dataDestiny from './drawData/dataDestiny';
+import dataDestinyWeapon from './drawData/dataDestinyWeapon';
+import dataDestinyPet from './drawData/dataDestinyPet';
 import useStore from './zustand/useStore';
 import GrabArea from './GrabArea';
 const darkTheme = createTheme({
@@ -35,25 +36,29 @@ const darkTheme = createTheme({
 const data = {
     data8369,
     data8614,
-    dataDestiny,
+    dataDestinyWeapon,
+    dataDestinyPet,
 };
 
 const useZState = (key) => {
-    const drawNums = useStore((state) => state[key]);
-    const setDrawNums = (value) => {
+    const value = useStore((state) => state[key]);
+    const setValue = (value) => {
         useStore.setState({
             [key]: value,
         });
     };
-    return [drawNums, setDrawNums];
+    return [value, setValue];
 };
 function App() {
     const [drawNums, setDrawNums] = useZState('drawNums');
     const [nowDataKey, setNowDataKey] = useZState('nowDataKey');
     const [drawData, setDrawData] = useZState('drawData');
     const [text, setText] = useZState('text');
+    const [average] = useZState('average');
+    const [total] = useZState('total');
     const cleanResult = useStore((state) => state.cleanResult);
     const resultList = useStore((state) => state.resultList);
+    console.log(useStore.getState());
     const formatData = (data) => {
         return data
             .trim()
@@ -69,6 +74,7 @@ function App() {
             100,
         [drawData]
     ); //總機率
+    const draw = useStore((state) => state.draw);
     const _bottom = useRef();
     const _scroll = useRef();
 
@@ -86,13 +92,6 @@ function App() {
         first.current = false;
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [nowDataKey]);
-    const average = useMemo(() => {
-        if (resultList.length === 0) {
-            return 0;
-        }
-        const sum = resultList.reduce((previousValue, currentValue) => previousValue + parseInt(currentValue), 0);
-        return sum / resultList.length;
-    }, [resultList]);
     const [drawerOpen, setDrawerOpen] = useZState('drawerOpen');
     const openDrawer = () => setDrawerOpen(true);
     const closeDrawer = () => setDrawerOpen(false);
@@ -116,6 +115,7 @@ function App() {
                     anchor="right"
                     open={drawerOpen}
                     onClose={closeDrawer}
+                    onOpen={() => {}}
                 >
                     <Box sx={{width: 350, p: 2}}>
                         <Link
@@ -142,9 +142,14 @@ function App() {
                                     />
                                     <FormControlLabel value="data8614" control={<Radio />} label="模擬抽畫框" />
                                     <FormControlLabel
-                                        value="dataDestiny"
+                                        value="dataDestinyWeapon"
                                         control={<Radio />}
                                         label="模擬衝命運武器卷"
+                                    />
+                                    <FormControlLabel
+                                        value="dataDestinyPet"
+                                        control={<Radio />}
+                                        label="模擬衝命運寵物卷"
                                     />
                                     {nowDataKey === '' && (
                                         <FormControlLabel value="" control={<Radio />} label="自訂資料" />
@@ -229,14 +234,14 @@ function App() {
                                 />
                                 <Button
                                     onClick={() => {
-                                        useStore.getState().draw();
+                                        draw();
                                     }}
                                 >
                                     抽
                                 </Button>
                             </Box>
                             <Box sx={{display: 'flex', flexDirection: 'row', alignItems: 'center'}}>
-                                <Typography sx={{my: 2, mr: 1}}>總數：{resultList.length}</Typography>
+                                <Typography sx={{my: 2, mr: 1}}>總數：{total}</Typography>
                                 {!!average && <Typography>平均：{Math.round(average * 100) / 100}</Typography>}
                                 <Button onClick={cleanResult}>清除</Button>
                             </Box>
@@ -253,7 +258,7 @@ function App() {
                                 }}
                                 ref={_scroll}
                             >
-                                {resultList.slice(-100).map((value, index) => (
+                                {resultList.map((value, index) => (
                                     <Box key={index} sx={{marginBottom: 1}}>
                                         {value}
                                     </Box>
